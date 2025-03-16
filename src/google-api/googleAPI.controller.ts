@@ -1,6 +1,7 @@
 import {Controller, Get, Logger, Query, Res} from '@nestjs/common';
-import { google } from 'googleapis';
 import {GoogleAPIService} from "./googleAPI.service";
+import {Response} from "express";
+
 
 @Controller('auth')
 export class GoogleAPIController {
@@ -8,31 +9,33 @@ export class GoogleAPIController {
     constructor(private readonly googleAPIService: GoogleAPIService) {}
 
     @Get('login')
-    async login(@Res() res) {
-        const oauth2Client = this.googleAPIService.getOAuth2Client();
+    async login(@Res() res: Response) {
+        const authUrl = await this.googleAPIService.getAuthUrl()
 
-        const authUrl = oauth2Client.generateAuthUrl({
-            access_type: 'offline',
-            scope: ['https://www.googleapis.com/auth/calendar'],
-        });
-        this.logger.log('Перенаправление на URL:', authUrl); // Вывод в консоль для отладки
-        return res.redirect(authUrl); // Открывает страницу входа Google
+        this.logger.log(`Redirecting to Google OAuth: ${authUrl}`);
+        return res.redirect(authUrl);
     }
 
     @Get('callback')
-    async callback(@Query('code') code: string, @Res() res) {
-        console.log('Полученный код:', code);
-
+    async callback(@Query('code') code: string, @Res() res: Response) {
         if (!code) {
-            return res.status(400).send('Code отсутствует в запросе');
+            return res.status(400).send('Authorization code is missing');
         }
 
         try {
-            const tokens = await this.googleAPIService.getTokensFromCode(code);
-            res.send('Успешно получены токены!');
+            await this.googleAPIService.exchangeCodeForTokens(code);
+            this.logger.log('Tokens successfully received and stored');
+            res.send('Authentication successful! Tokens saved.');
         } catch (error) {
-            console.error('Ошибка получения токенов:', error);
-            res.status(500).send('Ошибка при получении токенов');
+            this.logger.error('Error exchanging code for tokens:', error);
+            res.status(500).send('Failed to authenticate');
         }
+    }
+
+    @Get('logout')
+    async logout(@Res() res: Response) {
+        await this.googleAPIService.clearTokens();
+        this.logger.log('User logged out and tokens cleared');
+        res.send('Logged out successfully');
     }
 }

@@ -2,7 +2,14 @@
 /dist
 /node_modules
 /build
+
+
+
+# Keys, tokens etc.
 credentials.json
+tokens.json
+
+
 # Logs
 logs
 *.log
