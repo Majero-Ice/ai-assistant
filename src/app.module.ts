@@ -5,6 +5,8 @@ import {CalendarModule} from "./calendar/calendar.module";
 import {GoogleAPIModule} from "./google-api/googleAPI.module";
 import {WebSearchModule} from "./web-search/webSearch.module";
 import {ConfigModule} from "@nestjs/config";
+import {APP_INTERCEPTOR} from "@nestjs/core";
+import {TokenInterceptor} from "./token.interceptor";
 
 
 @Module({
@@ -15,6 +17,13 @@ import {ConfigModule} from "@nestjs/config";
     GoogleAPIModule,
     WebSearchModule,
     ConfigModule.forRoot()
+  ],
+  providers:[
+    {
+
+      provide: APP_INTERCEPTOR,
+      useClass: TokenInterceptor,
+    }
   ]
 
 })
