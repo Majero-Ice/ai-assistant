@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import {Context, InjectBot, On, Start, Update} from 'nestjs-telegraf';
+import {Command, Context, InjectBot, On, Start, Update} from 'nestjs-telegraf';
 import { AssistantService } from '../assistant/assistant.service';
 import axios from 'axios';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as fs from 'fs';
 import * as path from 'path';
-import {Telegraf} from "telegraf";
+import {Markup, Telegraf} from "telegraf";
 import {ConfigService} from "@nestjs/config";
 import {Env} from "../enums/env";
+import {Routes} from "../enums/routes";
 
 
 @Injectable()
@@ -22,6 +23,16 @@ export class TelegramService{
     @Start()
     handleStartCommand(@Context() ctx) {
         ctx.reply('Опять работа?');
+    }
+
+    @Command('auth')
+    async auth(@Context() ctx){
+        await ctx.reply(
+            'Для авторизации нажмите кнопку ниже:',
+            Markup.inlineKeyboard([
+                Markup.button.webApp('Авторизоваться', Routes.GOOGLE_AUTH)
+            ])
+        );
     }
 
     @On('text')
@@ -55,6 +66,9 @@ export class TelegramService{
     async sendMessage(userId, response:string){
         await this.bot.telegram.sendMessage(userId,response,{parse_mode:"Markdown"})
     }
+
+
+
 
 
     @On('voice')

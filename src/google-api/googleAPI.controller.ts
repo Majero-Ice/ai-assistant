@@ -1,12 +1,15 @@
 import {Controller, Get, Logger, Query, Res} from '@nestjs/common';
 import {GoogleAPIService} from "./googleAPI.service";
 import {Response} from "express";
+import {ConfigService} from "@nestjs/config";
 
 
 @Controller('auth')
 export class GoogleAPIController {
     private readonly logger = new Logger(GoogleAPIController.name);
-    constructor(private readonly googleAPIService: GoogleAPIService) {}
+    constructor(private readonly googleAPIService: GoogleAPIService,
+                private readonly configService:ConfigService
+    ) {}
 
     @Get('login')
     async login(@Res() res: Response) {
@@ -14,6 +17,12 @@ export class GoogleAPIController {
 
         this.logger.log(`Redirecting to Google OAuth: ${authUrl}`);
         return res.redirect(authUrl);
+    }
+
+    @Get('google')
+    async googleAuth() {
+
+        return { redirect: '/auth/google' };
     }
 
     @Get('callback')

@@ -17,7 +17,7 @@ export class GoogleAPIService implements OnModuleInit{
         this.oauth2Client = new google.auth.OAuth2(
             this.configService.get<string>(Env.GOOGLE_API_CLIENT_ID),
             this.configService.get<string>(Env.GOOGLE_API_CLIENT_SECRET),
-            'http://localhost:3000/auth/callback',
+            'https://d147-2a02-3037-305-d4fa-ecc9-83a4-3f9d-7ba9.ngrok-free.app/auth/callback',
         );
     }
 
