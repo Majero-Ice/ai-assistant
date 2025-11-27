@@ -48,7 +48,9 @@ export class AssistantService {
                 userMessage,
                 response,
             })
-            await this.telegramService.sendMessage(userId,AIResponse)
+            if (AIResponse !== undefined && AIResponse !== null) {
+                await this.telegramService.sendMessage(userId,AIResponse)
+            }
         }catch (e){
         }
     }
@@ -73,7 +75,7 @@ export class AssistantService {
     async chooseAIModel(model:ModelAI, userId:string, data){
         switch (model) {
             case ModelAI.ASSISTANT:
-                break
+                return undefined
             case ModelAI.CALENDAR:
                 return await this.calendarService.askCalendar(userId, data)
             case ModelAI.WEB_SEARCH:

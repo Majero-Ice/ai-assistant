@@ -80,16 +80,15 @@ export class TelegramService{
          writer.on('finish',  () => {
              ffmpeg(oggPath)
                  .toFormat('mp3')
-                 .on('end',  async () => {
-                     // Отправляем MP3 в Whisper API
-                     const text = await this.assistantService.transcribeAudio(mp3Path);
-                     if (text) {
-                         const reply = await this.assistantService.askAssistant(String(ctx.message.chat.id), text);
-                          ctx.reply(reply);
-                     }
-                     fs.unlinkSync(oggPath);
-                     fs.unlinkSync(mp3Path);
-                 })
+                .on('end',  async () => {
+                    // Отправляем MP3 в Whisper API
+                    const text = await this.assistantService.transcribeAudio(mp3Path);
+                    if (text) {
+                        await this.assistantService.askAssistant(String(ctx.message.chat.id), text);
+                    }
+                    fs.unlinkSync(oggPath);
+                    fs.unlinkSync(mp3Path);
+                })
                  .on('error', (err) => {
                      console.error('Ошибка конвертации аудио:', err);
                      ctx.reply('Произошла ошибка при обработке аудио.');
